@@ -1,30 +1,37 @@
-use structopt::StructOpt;
-use std::io::{stdin};
-#[derive(StructOpt)]
-struct Cli {
-    pattern: String,
-    #[structopt(parse(from_os_str))]
-    path: std::path::PathBuf
-}
-fn input() {
-  let mut input = String::new();
-  stdin().read_line(&mut input).expect("error: unable to read user input");
-  println!("You typed: {}",input);
-}
+use dialoguer::{theme::ColorfulTheme, MultiSelect};
+use std::process::Command;
+use std::fs::File;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-input();
-let args = Cli::from_args();
+fn main () -> std::io::Result<()>{
+    let multi = &[
+        "car",
+        "bike",
+        "plane",
+        "roller blades"
+    ];
+    let selections = MultiSelect::with_theme(&ColorfulTheme::default())
+        .with_prompt("how move?")
+        .items(&multi[..])
+        .interact()
+        .unwrap();
 
-let result = std::fs::read_to_string(&args.path);
-let content = match result {
-    Ok(content) => {content},
-    Err(error) => {panic!("error time!! {}", error)}
-};
-for line in content.lines() {
-    if line.contains(&args.pattern) {
-        println!("{}", line);
-    }
-}
+        if selections.is_empty() {
+            println!("hello?")
+        } else  {
+            println!("You selected these things:");
+            for selection in selections {
+                let m = multi[selection];
+                println!(" {}", m);
+
+                if m == "bike" {
+                Command::new("ls")
+                    .spawn()
+                    .expect("idk");
+                } else if m == "plane" {
+                    File::create("text.txt");
+                }
+            }
+        }
+            
 Ok(())
 }
